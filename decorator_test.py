@@ -66,3 +66,15 @@ def main() -> None:
 
 if __name__ == "__main__":
   main()
+
+  
+  
+"""
+python3 -i decorator_test.py
+>>> test(1000)
+[test] Took Time : 39.68231679999735
+39.68231679999735
+>>> test_cached(1000)
+[test_cached] Took Time : 0.0014149999478831887
+0.0014149999478831887
+"""
