@@ -46,7 +46,6 @@ class HuffmanEncoding:
                 self.word_count[ch] += 1
             except KeyError as ke:
                 self.word_count[ch] = 1
-        print("in prepare", sorted(self.word_count.keys()))
         self.data_repr = sorted(
             self.word_count.items(),
             key=lambda x: x[1],
@@ -90,7 +89,6 @@ class HuffmanEncoding:
 
     def get_final_encoded_msg(self) -> str:
         enc = self.get_encoding()
-        print("in enc msg", sorted(enc.keys()))
         ans = ''.join(
             [ enc[ch] for ch in self.data ]
         )
@@ -111,7 +109,7 @@ class HuffmanEncoding:
         return str(temp)
 
 
-def dumb(src_msg: str) -> str:
+def basic_encoding(src_msg: str) -> str:
     msg = src_msg[:]
     msg += "$"
     now = msg[0]
@@ -139,7 +137,7 @@ def main(args: typing.Optional[typing.Sequence[str]]):
     args = parser.parse_args(args)
     items =  [ chr(i) for i in range(ord('A'), ord('Z') + 1) ]
     random.seed(args.rng_seed)
-    assert args.diff_chr <= args.msg_len
+    assert args.diff_chr <= args.msg_len and args.diff_chr >= 2
     while True:
         msg = ''.join(
             [
@@ -156,24 +154,25 @@ def main(args: typing.Optional[typing.Sequence[str]]):
             break
     # GFG test
     # Output- f: 0 c: 100 d: 101 a: 1100 b: 1101 e: 111
-    msg = ''.join([
-        x*ch for ch, x in zip(
-            [ 'a', 'b', 'c', 'd', 'e', 'f' ],
-            [ 5, 9, 12, 13, 16, 45 ]
-        )
-    ])
-    print(msg)
+    #msg = ''.join([
+        #x*ch for ch, x in zip(
+            #[ 'a', 'b', 'c', 'd', 'e', 'f' ],
+            #[ 5, 9, 12, 13, 16, 45 ]
+        #)
+    #])
+    print(f"{msg=}")
     hf = HuffmanEncoding(msg)
-    enc = hf.get_encoding()
-    encoded_msg = hf.get_final_encoded_msg()
-    print(enc, encoded_msg)
-    dumb_enc = dumb(msg)
-    print(dumb_enc)
-    op = {
-        "dumb": len(dumb_enc),
-        "huffman": len(encoded_msg)
+    huffman_encoding = hf.get_encoding()
+    huffman_encoded_msg = hf.get_final_encoded_msg()
+    basic_encoded_msg = basic_encoding(msg)
+    print(f"{huffman_encoding=}")
+    print(f"{huffman_encoded_msg=}")
+    print(f"{basic_encoded_msg=}")
+    huffman_vs_basic = {
+        "len_basic": len(basic_encoded_msg),
+        "len_huffman": len(huffman_encoded_msg)
     }
-    print(op)
+    print(f"{huffman_vs_basic=}")
 
 
 if __name__ == "__main__":
