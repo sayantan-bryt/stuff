@@ -19,6 +19,7 @@ def create_url(url: schemas.URLBase, request: Request, db: Session = Depends(get
         raise_bad_request(message="Your provided URL is not valid")
 
     db_url = crud.create_db_url(db=db, url=url)
+    # note: should redirect
     return get_admin_info(request, db_url)
 
 
