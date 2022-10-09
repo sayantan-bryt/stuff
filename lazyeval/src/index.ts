@@ -184,5 +184,8 @@ function sieve(xs: lazyList<number>) : lazyList<number> {
 //printList(sieve(range(() => 2)))
 printList(take(sieve(range(() => 2)), 10))
 
+// TODO: https://stackoverflow.com/questions/54059/efficiently-selecting-a-set-of-random-elements-from-a-linked-list
+// implement efficient sampling from sieve
+
 
 export {}
