@@ -9,7 +9,7 @@ virtualenv env
 pip3 install Django --index-url https://pypi.org/simple
 
 # init project
-django-admin startproject ssam-site
+django-admin startproject testsite
 
 # migrate
 python3 manage.py migrate
