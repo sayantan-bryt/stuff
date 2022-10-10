@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "api"
+version = "0.1.0"
+description = ""
+authors = ["creepysta <sweetnanispregnantghost@yahoo.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+starlette = "^0.20.4"
+SQLAlchemy = "^1.4.41"
+uvicorn = "^0.18.3"
+strawberry-graphql = "^0.128.0"
+gql = {extras = ["all"], version = "^3.4.0"}
+gunicorn = "^20.1.0"
+
+
+[tool.poetry.group.dev.dependencies]
+isort = "^5.10.1"
+black = "^22.8.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
