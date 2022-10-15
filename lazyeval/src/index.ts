@@ -95,7 +95,7 @@ function range(begin: lazy<number>): lazyList<number> {
     }
 }
 
-console.log("---\nRange\n---\n")
+console.log("\n---\nRange\n---\n")
 console.log(range(() => 2)()!.head())
 console.log(range(() => 2)()!.tail()!.head())
 console.log(range(() => 2)()!.tail()!.tail()!.head())
@@ -111,18 +111,18 @@ function printList<T>(xs : lazyList<T>) {
     }
 }
 
-console.log("---\nPrintList\n---\n")
+console.log("\n---\nPrintList\n---\n")
 //printList(range(() => 3))
 
 
-console.log("---\nTake\n---\n")
+console.log("\n---\nTake\n---\n")
 console.log("Take 10 numbers starting from 3:\n")
 
 function take<T>(xs: lazyList<T>, n: number): lazyList<T> {
         const pair = xs()
         if (pair === null) {
             return () => null
-        } else if(n < 0) {
+        } else if(n <= 0) {
             return () => null
         }
         return () => {
@@ -137,7 +137,7 @@ function take<T>(xs: lazyList<T>, n: number): lazyList<T> {
 printList(take(range(() => 3), 10))
 
 
-console.log("---\nFilter\n---\n")
+console.log("\n---\nFilter\n---\n")
 console.log("Even numbers:\n")
 
 function filter<T>(f: (x: T) => boolean, xs: lazyList<T>): lazyList<T> {
@@ -166,7 +166,7 @@ printList(
     )
 )
 
-console.log("---\nSieve\n---\n")
+console.log("\n---\nSieve\n---\n")
 
 function sieve(xs: lazyList<number>) : lazyList<number> {
     const pair = xs()
@@ -183,6 +183,46 @@ function sieve(xs: lazyList<number>) : lazyList<number> {
 
 //printList(sieve(range(() => 2)))
 printList(take(sieve(range(() => 2)), 10))
+
+console.log("\n---\nMersenne Primes\n---\n")
+
+function mersenne(primes: lazyList<number>) : lazyList<number> {
+    return filter((x: number) => ((x+1) & (x)) === 0, primes)
+}
+
+
+// FIXME:
+/*
+
+printList(take(mersenne(sieve(range(() => 2))), 4))
+
+error: Uncaught RangeError: Maximum call stack size exceeded
+            tail: range(() => x + 1)
+                        ^
+    at file:///Users/sayantan.samajpati/stuff/prac/stuff/lazyeval/src/index.ts:93:25
+    at file:///Users/sayantan.samajpati/stuff/prac/stuff/lazyeval/src/index.ts:90:27
+    at filter (file:///Users/sayantan.samajpati/stuff/prac/stuff/lazyeval/src/index.ts:144:18)
+    at filter (file:///Users/sayantan.samajpati/stuff/prac/stuff/lazyeval/src/index.ts:156:12)
+    at file:///Users/sayantan.samajpati/stuff/prac/stuff/lazyeval/src/index.ts:152:23
+    at filter (file:///Users/sayantan.samajpati/stuff/prac/stuff/lazyeval/src/index.ts:144:18)
+    at filter (file:///Users/sayantan.samajpati/stuff/prac/stuff/lazyeval/src/index.ts:156:12)
+    at file:///Users/sayantan.samajpati/stuff/prac/stuff/lazyeval/src/index.ts:152:23
+    at filter (file:///Users/sayantan.samajpati/stuff/prac/stuff/lazyeval/src/index.ts:144:18)
+    at file:///Users/sayantan.samajpati/stuff/prac/stuff/lazyeval/src/index.ts:152:23
+*/
+
+printList(
+    take(
+        mersenne(
+            sieve(range(() => 2))
+        ),
+        3
+    )
+)
+
+
+console.log("\n---\nSampling\n---\n")
+console.log("### Reservoir Sampling: \n")
 
 // TODO: https://stackoverflow.com/questions/54059/efficiently-selecting-a-set-of-random-elements-from-a-linked-list
 // implement efficient sampling from sieve
@@ -205,8 +245,6 @@ while I is not empty:
     I.pop()
 
 */
-
-console.log("---\nSample\n---\n")
 
 type Scale = {
     l: number,
