@@ -187,5 +187,57 @@ printList(take(sieve(range(() => 2)), 10))
 // TODO: https://stackoverflow.com/questions/54059/efficiently-selecting-a-set-of-random-elements-from-a-linked-list
 // implement efficient sampling from sieve
 
+/*
+Let R be the result array of size s
+Let I be an input queue
+
+> Fill the reservoir array
+for j in the range [1,s]:
+  R[j]=I.pop()
+
+elements_seen=s
+while I is not empty:
+  elements_seen+=1
+  j=random(1,elements_seen)       > This is inclusive
+  if j<=s:
+    R[j]=I.pop()
+  else:
+    I.pop()
+
+*/
+
+console.log("---\nSample\n---\n")
+
+type Scale = {
+    l: number,
+    r: number
+}
+
+function r_rand(x: number, new_p: Scale, old_p: Scale = {l: 0, r: 1}): number {
+    const slope: number = 1.0 * (new_p.r - new_p.l) / (old_p.r - old_p.l)
+    const res: number = new_p.l + slope * (x - old_p.l)
+    return res
+}
+
+function sample<T>(xs: lazyList<T>, n: number, k: number) : Array<T> {
+    let res: Array<T> = new Array(k)
+    let pair = xs()
+    for(let i = 0; i < k; i++) {
+        res[i] = pair!.head()
+        pair = pair!.tail()
+    }
+    let seen = k
+    while (seen < n) {
+        seen += 1
+        const pos = Math.round(r_rand(Math.random(), {l: 1, r: seen}))
+        if (pos < k) {
+            res[pos] = pair!.head()
+        }
+        pair = pair!.tail()
+    }
+    return res;
+}
+
+console.log(sample(range(() => 2), 120, 5))
 
 export {}
