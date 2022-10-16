@@ -186,9 +186,40 @@ printList(take(sieve(range(() => 2)), 10))
 
 console.log("\n---\nMersenne Primes\n---\n")
 
+// works
+// printList(filter((x: number) => x % 2 === 0, range(() => 1)))
+
+// generate 2^n - 1
+// fails
+// printList(filter((x: number) => ((x+1) & (x)) === 0, range(() => 1)))
+
 function mersenne(primes: lazyList<number>) : lazyList<number> {
     return filter((x: number) => ((x+1) & (x)) === 0, primes)
 }
+
+function mersenne_iter(primes: lazyList<number> = () => null) : void {
+
+    for(let i=1; ; i++) {
+        if ( ((i+1) & i) === 0 )
+            console.log(i)
+    }
+
+    /*
+    let pair = primes()
+    while(pair !== null) {
+        const x = pair.head()
+        if ( ((x+1) & x) === 0 )
+            console.log(x)
+        pair = pair.tail()
+    }
+    */
+}
+
+mersenne_iter()
+// printList(range(() => 2))
+// mersenne_iter(range(() => 1))
+// mersenne_iter(sieve(range(() => 2)))
+
 
 
 // FIXME:
