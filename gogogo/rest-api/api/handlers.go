@@ -1,14 +1,20 @@
-package main
+package api
 
 import (
 	"net/http"
 
+	"github.com/creepysta/stuff/gogogo/rest-api/api/db"
 	"github.com/gin-gonic/gin"
 )
 
+// hello
+func hello(c *gin.Context) {
+    c.IndentedJSON(http.StatusOK, "Hey there Delilah!!")
+}
+
 // getAlbums responds with the list of all albums as JSON.
 func getAlbums(c *gin.Context) {
-    c.IndentedJSON(http.StatusOK, albums)
+    c.IndentedJSON(http.StatusOK, db.Albums)
 }
 
 // getAlbumByID locates the album whose ID value matches the id
@@ -18,7 +24,7 @@ func getAlbumByID(c *gin.Context) {
 
     // Loop over the list of albums, looking for
     // an album whose ID value matches the parameter.
-    for _, a := range albums {
+    for _, a := range db.Albums {
         if a.ID == id {
             c.IndentedJSON(http.StatusOK, a)
             return
@@ -29,7 +35,7 @@ func getAlbumByID(c *gin.Context) {
 
 // postAlbums adds an album from JSON received in the request body.
 func postAlbums(c *gin.Context) {
-    var newAlbum album
+    var newAlbum db.Album
 
     // Call BindJSON to bind the received JSON to
     // newAlbum.
@@ -38,7 +44,7 @@ func postAlbums(c *gin.Context) {
     }
 
     // Add the new album to the slice.
-    albums = append(albums, newAlbum)
+    db.Albums = append(db.Albums, newAlbum)
     c.IndentedJSON(http.StatusCreated, newAlbum)
 }
 

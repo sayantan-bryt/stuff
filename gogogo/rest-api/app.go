@@ -1,14 +1,12 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
+	"log"
+
+	"github.com/creepysta/stuff/gogogo/rest-api/api"
 )
 
 func main() {
-    router := gin.Default()
-    router.GET("/albums", getAlbums)
-    router.GET("/albums/:id", getAlbumByID)
-    router.POST("/albums", postAlbums)
-
-    router.Run("0.0.0.0:80")
+  log.SetPrefix("rest-api")
+  api.Routes().Run("0.0.0.0:80")
 }
