@@ -42,7 +42,6 @@ func postAlbums(c *gin.Context) {
     if err := c.BindJSON(&newAlbum); err != nil {
         return
     }
-
     // Add the new album to the slice.
     db.Albums = append(db.Albums, newAlbum)
     c.IndentedJSON(http.StatusCreated, newAlbum)
