@@ -1,10 +1,36 @@
 # pros and cons of pyspark
 # serializers in PySpark
+#   Default - PickleSerializer uses Python's cPickle serializer,
+#               - which can serialize nearly any Python object.
+#           - Other serializers, like MarshalSerializer, support fewer datatypes
+#               - can be faster.
+#   sc = SparkContext('local', 'test', serializer=MarshalSerializer(), batchSize=2)
+# Logical and Physical plan
+# Logical :=
+#           - Unresolved / Parsed
+#           - Analyzed (without action, using catalog with the help of metastore)
+#           - Optimized
 # types of operations := transformations,
 #                        actions (first, take, collect, count, reduce)
+# df.persist(storage_level) := storage_level ->
+#   MEMORY ONLY: This is the default persistence level, and it's used to save RDDs on the JVM as deserialized Java objects. In the event that the RDDs are too large to fit in memory, the partitions are not cached and must be recomputed as needed.
+#   MEMORY AND DISK: On the JVM, the RDDs are saved as deserialized Java objects. In the event that memory is inadequate, partitions that do not fit in memory will be kept on disc, and data will be retrieved from the drive as needed.
+#   MEMORY ONLY SER: The RDD is stored as One Byte per partition serialized Java Objects.
+#   DISK ONLY: RDD partitions are only saved on disc.
+#   OFF HEAP: This level is similar to MEMORY ONLY SER, except that the data is saved in off-heap memory.
 # types of transformations := narrow (map, filter)
 #                              wide (shuffle - reduceByKey, groupByKey)
 # Pros of RDD
+#   - Lazy Evaluation
+#   - In-Memory Computation
+#   - Immutability
+#   - Fault Tolerance
+#   - Partitioning
+#   - Persistence - user can define where to persist `df.persist(storage_level)`
+#   - Location-Stickiness
+#   - Typed
+#   - Coarse-Grained Operation: operate on entire dataset
+#   - No Limitation
 # Cons of RDD
 #       No inbuilt optimization engine
 #           := No catalyst optimizer and Tungsten execution engine
@@ -17,7 +43,9 @@
 #              Can also store partition of RDD on disk which exceeds RAM.
 # #1 parse /etc/passwd
 # #2 pivot()
-# #3 unpivot()
+# #3 unpivot() # not present in pyspark, requires stack
+# #4 total number of unique words
+#   count of consonants and vowels
 
 # 1
 from __future__ import annotations
@@ -33,7 +61,7 @@ sc = pyspark.SparkContext()
 spark = pyspark.sql.SparkSession(sc)
 
 
-rdd = sc.textFile("/etc/passwd")
+passwd_rdd = sc.textFile("/etc/passwd")
 
 
 @dataclass(frozen=True)
@@ -86,8 +114,8 @@ def fn2(line: Line) -> Line:
         return Line(status="changed", prev=line.prev, modified=mod_line)
 
 
-res = rdd.map(fn).map(fn1).map(fn2)
-res.foreach(
+passwd_res = passwd_rdd.map(fn).map(fn1).map(fn2)
+passwd_res.foreach(
     lambda x: print(
         json.dumps(
             {name: getattr(x, name) for name, field in x.__dataclass_fields__.items()},
@@ -95,14 +123,14 @@ res.foreach(
         )
     )
 )
-# res.foreach(print)
-# res.foreach(lambda x: print(asdict(x)))
-# res.foreach(lambda x: print(x.asdict()))
-# res.foreach(lambda x: print(json.dumps(asdict(x), indent=2)))
+# passwd_res.foreach(print)
+# passwd_res.foreach(lambda x: print(asdict(x)))
+# passwd_res.foreach(lambda x: print(x.asdict()))
+# passwd_res.foreach(lambda x: print(json.dumps(asdict(x), indent=2)))
 
-changed_rdd = res.filter(lambda x: x.status == "changed")
+changed_rdd = passwd_res.filter(lambda x: x.status == "changed")
 print(f"Changed Rows: {changed_rdd.count()}")
-print(f"Unchanged Rows: {res.count() - changed_rdd.count()}")
+print(f"Unchanged Rows: {passwd_res.count() - changed_rdd.count()}")
 
 
 # 2
@@ -140,3 +168,40 @@ unpivot_expr = (
 unpivot_df = privot_df.select("Product", expr(unpivot_expr)).where("Total is not null")
 unpivot_df.show(truncate=False)
 unpivot_df.show()
+
+
+# 4
+import re
+
+# 10000 words from https://www.lipsum.com/
+
+lorem_rdd = sc.textFile("/tmp/lorem.txt")
+lorem_rdd_p = (
+    lorem_rdd.map(lambda line: line.split(" "))
+    .flatMap(lambda line: line)
+    .map(lambda line: re.sub(r"\W", "", line))
+    .filter(len)
+)
+
+lorem_vowels = lorem_rdd_p.filter(
+    lambda x: (len(x) > 1 and x[0] in ("a", "e", "i", "o", "u"))
+)
+
+## Without Empty
+#       Unique words = 199
+#       Total words = 10000
+## With Empty
+#       Unique words = 200
+#       Total words = 10111
+
+# Consonants = 7180. Vowels = 2820 # Skipping articles (len(x) > 1)
+# Consonants = 7068. Vowels = 2932 # Without skipping
+
+lorem_uniq = lorem_rdd_p.distinct()
+
+print(f"Unique words = {lorem_uniq.count()}")
+print(
+    f"Consonants = {lorem_rdd_p.count() - lorem_vowels.count()}. "
+    f"Vowels = {lorem_vowels.count()}"
+)
+print(f"Total words = {lorem_rdd_p.count()}")
