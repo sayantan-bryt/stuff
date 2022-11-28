@@ -13,7 +13,7 @@
 # types of operations := transformations,
 #                        actions (first, take, collect, count, reduce)
 # df.persist(storage_level) := storage_level ->
-#   MEMORY ONLY: This is the default persistence level, and it's used to save RDDs on the JVM as deserialized Java objects. In the event that the RDDs are too large to fit in memory, the partitions are not cached and must be recomputed as needed.
+#   MEMORY ONLY: default persistence level. used to save RDDs on the JVM as deserialized Java objects. In the event that the RDDs are too large to fit in memory, the partitions are not cached and must be recomputed as needed.
 #   MEMORY AND DISK: On the JVM, the RDDs are saved as deserialized Java objects. In the event that memory is inadequate, partitions that do not fit in memory will be kept on disc, and data will be retrieved from the drive as needed.
 #   MEMORY ONLY SER: The RDD is stored as One Byte per partition serialized Java Objects.
 #   DISK ONLY: RDD partitions are only saved on disc.
