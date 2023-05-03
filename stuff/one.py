@@ -54,11 +54,6 @@ class _Foo(types.ModuleType):
         _save_module(val)
         return _Foo(num_to_name[val])
 
-    def __truediv__(self, other):
-        val = name_to_num[__name__] / name_to_num[other.__name__]
-        _save_module(val)
-        return _Foo(num_to_name[val])
-
     def __floordiv__(self, other):
         val = name_to_num[__name__] // name_to_num[other.__name__]
         _save_module(val)
