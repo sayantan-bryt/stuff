@@ -23,8 +23,8 @@ def range(left):
     return fn
 
 
-xs = range(1)(5)
-print(f"{xs=}")
+xs_5 = range(1)(5)
+print(f"{xs_5=}")
 
 def list_to_array(xs):
     rv = []
@@ -50,10 +50,10 @@ def mmap(func):
         return Pair(func(head(xs)), mmap(func)( tail(xs) ))
     return inner
 
-print(f"{list_to_array(xs)=}")
-print(f"{array_to_list(list_to_array(xs))=}")
+print(f"{list_to_array(xs_5)=}")
+print(f"{array_to_list(list_to_array(xs_5))=}")
 
-print(f"{list_to_array(mmap(lambda x: x*x) (xs))=}")
+print(f"{list_to_array(mmap(lambda x: x*x) (xs_5))=}")
 
 
 fxs = range(1)(100)
@@ -72,7 +72,7 @@ print(f"{list_to_array(mmap(fizzBuzz) (fxs))=}")
 
 def inf_curry(*args):
     items = []
-    assert len(args) <= 1, "Expected a single argument to be passed"
+    assert len(args) <= 1, "Expected a single or no argument to be passed"
     if len(args) == 0:
         return items
 
@@ -92,18 +92,79 @@ print(f"{inf_curry(1)()=}")
 print(f"{inf_curry(1)(2)(3)(4)(5)()=}")
 
 
+def mfilter(func):
+    def inner(xs):
+        if xs is None:
+            return None
+        if func(head(xs)) is True:
+            return Pair(head(xs), mfilter(func)(tail(xs)))
+
+        return mfilter(func)(tail(xs))
+    return inner
+
+xs_10 = range(1)(10)
+print(f"{list_to_array(mfilter(lambda x: x % 2 == 0)(xs_10))=}")
+
+
+def take(xs):
+    def inner(n):
+        if n <= 0:
+            return None
+        return Pair(head(xs), take(tail(xs))(n-1))
+    return inner
+
+print(f"{list_to_array(take(xs_10)(4))=}")
+
+
+print(f"{list_to_array(take( mfilter(lambda x: x%2 == 1)(xs_10))(3))=}")
+
+
+def sieve(xs):
+    """
+    ref - https://en.wikipedia.org/wiki/Sieve_of_Eratosthenes
+    """
+    if xs is None:
+        return None
+
+    return Pair(
+            head(xs),
+            sieve( mfilter(lambda x: x % head(xs) != 0)(tail(xs)) )
+        )
+
+
+xs_2_60 = range(2)(60)
+print(f"{list_to_array(sieve(xs_2_60))=}")
+
+
+def mersenne(xs):
+    """
+    https://en.wikipedia.org/wiki/Mersenne_prime
+    mersenne primes - any prime of the form 2**n - 1
+    """
+    if xs is None:
+        return None
+
+    return Pair(
+            head(xs),
+            mersenne(mfilter(lambda x: x & (x+1) == 0)(tail(xs)))
+        )
+
+xs_3_200 = range(3)(200)
+print(f"{list_to_array(mersenne(sieve(xs_3_200)))=}")
+
+
 """
 Pair(first=10, second=20)
 
-xs=Pair(first=1, second=Pair(first=2, second=Pair(first=3, second=Pair(first=4,
-second=Pair(first=5, second=None)))))
+xs_5=Pair(first=1, second=Pair(first=2, second=Pair(first=3,
+second=Pair(first=4, second=Pair(first=5, second=None)))))
 
-list_to_array(xs)=[1, 2, 3, 4, 5]
+list_to_array(xs_5)=[1, 2, 3, 4, 5]
 
-array_to_list(list_to_array(xs))=Pair(first=1, second=Pair(first=2,
+array_to_list(list_to_array(xs_5))=Pair(first=1, second=Pair(first=2,
 second=Pair(first=3, second=Pair(first=4, second=Pair(first=5, second=None)))))
 
-list_to_array(mmap(lambda x: x*x) (xs))=[1, 4, 9, 16, 25]
+list_to_array(mmap(lambda x: x*x) (xs_5))=[1, 4, 9, 16, 25]
 
 list_to_array(mmap(fizzBuzz) (fxs))=[1, 2, 'Fizz', 4, 'Buzz', 'Fizz', 7, 8,
 'Fizz', 'Buzz', 11, 'Fizz', 13, 14, 'FizzBuzz', 16, 17, 'Fizz', 19, 'Buzz',
@@ -118,4 +179,15 @@ list_to_array(mmap(fizzBuzz) (fxs))=[1, 2, 'Fizz', 4, 'Buzz', 'Fizz', 7, 8,
 inf_curry()=[]
 inf_curry(1)()=[1]
 inf_curry(1)(2)(3)(4)(5)()=[1, 2, 3, 4, 5]
+
+list_to_array(mfilter(lambda x: x % 2 == 0)(xs_10))=[2, 4, 6, 8, 10]
+
+list_to_array(take(xs_10)(4))=[1, 2, 3, 4]
+
+list_to_array(take( mfilter(lambda x: x%2 == 1)(xs_10))(3))=[1, 3, 5]
+
+list_to_array(sieve(xs_2_60))=[2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41,
+43, 47, 53, 59]
+
+list_to_array(mersenne(sieve(xs_3_200)))=[3, 7, 31, 127] 
 """
