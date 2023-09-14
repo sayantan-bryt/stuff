@@ -26,21 +26,28 @@ def range(left):
 xs_5 = range(1)(5)
 print(f"{xs_5=}")
 
+# impure because mutates nonlocal array
 def list_to_array(xs):
     rv = []
-    while xs is not None:
-        item = head(xs)
-        rv.append(item)
-        xs = tail(xs)
-    return rv
+    def inner(xs):
+        nonlocal rv
+        if xs is None:
+            return rv
+        rv.append(head(xs))
+        return inner(tail(xs))
 
+    return inner(xs)
+
+# impure since accepts array?
 def array_to_list(array):
-    rv = None
-    array.reverse()
-    for e in array:
-        rv = pair(e)(rv)
+    def inner(array):
+        def _inner(rv=None):
+            if len(array) == 0:
+                return rv
+            return inner(array[1:])(Pair(array[0], rv))
+        return _inner
 
-    return rv
+    return inner(array)()
 
 
 def mmap(func):
@@ -151,6 +158,10 @@ def mersenne(xs):
 
 xs_3_200 = range(3)(200)
 print(f"{list_to_array(mersenne(sieve(xs_3_200)))=}")
+
+
+# TODO: maybe actually make the `Pair` lazy where the tail is itself 
+# a function which needs to be called to be evaluated.
 
 
 """
